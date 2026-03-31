@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+/* ─── Theme Tokens ─────────────────────────────────────────── */
+:root {
+  --bg-app:        #f0f4ff;
+  --bg-card:       #ffffff;
+  --bg-header:     #ffffff;
+  --bg-sidebar:    #312e81;   /* indigo-900 */
+  --bg-muted:      #f9fafb;
+  --bg-input:      #ffffff;
+
+  --border:        #e5e7eb;
+  --border-muted:  #f3f4f6;
+
+  --text-primary:  #111827;
+  --text-secondary:#6b7280;
+  --text-muted:    #9ca3af;
+  --text-sidebar:  #c7d2fe;   /* indigo-200 */
+
+  --accent:        #4338ca;   /* indigo-700 */
+  --accent-hover:  #3730a3;   /* indigo-800 */
+  --accent-light:  #eef2ff;   /* indigo-50  */
+  --accent-text:   #4338ca;
+
+  --nav-active-bg: #facc15;   /* yellow-400 */
+  --nav-active-text:#312e81;  /* indigo-900 */
+
+  --green:         #16a34a;
+  --green-bg:      #f0fdf4;
+  --green-border:  #bbf7d0;
+
+  --red:           #dc2626;
+  --red-bg:        #fef2f2;
+  --red-border:    #fecaca;
+
+  --orange:        #ea580c;
+  --orange-bg:     #fff7ed;
+
+  --yellow:        #d97706;
+  --yellow-bg:     #fffbeb;
+
+  --purple:        #7c3aed;
+  --purple-bg:     #faf5ff;
+
+  --blue:          #2563eb;
+  --blue-bg:       #eff6ff;
+}
+
+.dark {
+  --bg-app:        #030712;   /* gray-950 */
+  --bg-card:       #111827;   /* gray-900 */
+  --bg-header:     #111827;
+  --bg-sidebar:    #0f172a;   /* slate-900 */
+  --bg-muted:      #1f2937;   /* gray-800 */
+  --bg-input:      #1f2937;
+
+  --border:        #374151;   /* gray-700 */
+  --border-muted:  #1f2937;
+
+  --text-primary:  #f9fafb;
+  --text-secondary:#9ca3af;
+  --text-muted:    #6b7280;
+  --text-sidebar:  #94a3b8;   /* slate-400 */
+
+  --accent:        #6366f1;   /* indigo-500 */
+  --accent-hover:  #818cf8;   /* indigo-400 */
+  --accent-light:  #1e1b4b;
+  --accent-text:   #a5b4fc;
+
+  --nav-active-bg: #4f46e5;
+  --nav-active-text:#ffffff;
+
+  --green:         #4ade80;
+  --green-bg:      #052e16;
+  --green-border:  #166534;
+
+  --red:           #f87171;
+  --red-bg:        #450a0a;
+  --red-border:    #991b1b;
+
+  --orange:        #fb923c;
+  --orange-bg:     #431407;
+
+  --yellow:        #fbbf24;
+  --yellow-bg:     #422006;
+
+  --purple:        #c084fc;
+  --purple-bg:     #2e1065;
+
+  --blue:          #60a5fa;
+  --blue-bg:       #172554;
+}
+
+/* ─── Base ──────────────────────────────────────────────────── */
+/* * { box-sizing: border-box; margin: 0; padding: 0; } */
+
+body {
+  font-family: system-ui, 'Segoe UI', sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  transition: background 0.2s, color 0.2s;
+}
+
+#root { display: flex; min-height: 100vh; }
