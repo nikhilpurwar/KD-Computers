@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   GraduationCap, UserPlus, CreditCard, BookOpen,
   Settings, Clock, ChevronRight, ChevronLeft,
-  ChevronDown, X, Library, BarChart3,
+  ChevronDown, X, BarChart3, Heart, LibraryBig 
 } from 'lucide-react'
 
 const navItems = [
@@ -139,8 +139,8 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapse }) 
     >
       {/* Logo */}
       <div className="flex items-center justify-between px-3 py-4 border-b border-white/10 dark:border-gray-700 min-h-[64px]">
-        <div className="w-10 h-10 rounded-xl bg-blue-900 flex items-center justify-center text-lg font-bold text-white dark:text-white">
-          KD
+        <div className="w-10 h-10 rounded-xl bg-blue-900 flex items-center justify-center text-white dark:text-white">
+          <LibraryBig />
         </div>
         {!collapsed && (
           <div className="flex-1 ml-3 overflow-hidden">
@@ -185,8 +185,11 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapse }) 
       </nav>
 
       {!collapsed && (
-        <div className="px-4 py-3 text-xs border-t border-white/10 dark:border-gray-700 text-gray-500 dark:text-gray-600">
-          © 2025 KD Group
+        <div className="px-4 py-3 border-t border-white/10 dark:border-gray-700 space-y-0.5">
+          <p className="text-xs text-white/30 dark:text-gray-600">© 2025 KD Group</p>
+          <p className="text-xs text-white/40 dark:text-gray-600 flex items-center gap-1">
+            Made with <Heart size={10} className="text-red-400 fill-red-400" /> by Nikhil
+          </p>
         </div>
       )}
     </aside>

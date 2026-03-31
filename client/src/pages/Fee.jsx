@@ -51,7 +51,7 @@ export default function Fee() {
                 key={f} onClick={() => setFilter(f)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80 ${
                   filter === f
-                    ? 'bg-indigo-700 dark:bg-indigo-600 text-white'
+                    ? 'bg-blue-700 dark:bg-blue-600 text-white'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                 }`}
               >
@@ -70,7 +70,7 @@ export default function Fee() {
               <Td>
                 <button
                   onClick={() => navigate(`/fee-report/${f.roll}`)}
-                  className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1.5"
+                  className="font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5"
                 >
                   {f.name}
                   <FileText size={13} className="opacity-60" />

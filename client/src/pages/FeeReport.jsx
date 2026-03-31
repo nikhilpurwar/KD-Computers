@@ -42,21 +42,22 @@ function StudentReport({ roll }) {
       {/* Back */}
       <button
         onClick={() => navigate('/fee-report')}
-        className="flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:opacity-80 font-medium"
+        className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:opacity-80 font-medium"
       >
         <ArrowLeft size={16} /> Back to Fee Report
       </button>
 
       {/* Student Info */}
       <Card>
-        <div className="px-6 py-4 bg-indigo-900 dark:bg-gray-800 flex flex-wrap items-center justify-between gap-3">
+        <div className="px-6 py-4 bg-gradient-to-l from-blue-950 via-blue-800 to-blue-700
+        dark:bg-gradient-to-l dark:from-blue-950 dark:via-white/5 dark:via-white/3 dark:to-white/1 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-yellow-400 dark:bg-indigo-600 flex items-center justify-center text-indigo-900 dark:text-white font-bold text-lg">
+            <div className="w-11 h-11 rounded-full bg-blue-300 dark:bg-blue-600 flex items-center justify-center text-blue-900 dark:text-white font-bold text-lg">
               {student.name[0]}
             </div>
             <div>
               <p className="text-white font-bold text-base">{student.name}</p>
-              <p className="text-indigo-300 dark:text-gray-400 text-xs">{student.roll} · {student.shift} Shift</p>
+              <p className="text-blue-300 dark:text-gray-400 text-xs">{student.roll} · {student.shift} Shift</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -88,7 +89,7 @@ function StudentReport({ roll }) {
                 key={t} onClick={() => setTab(t)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80 ${
                   tab === t
-                    ? 'bg-indigo-700 dark:bg-indigo-600 text-white'
+                    ? 'bg-blue-700 dark:bg-blue-600 text-white'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                 }`}
               >
@@ -166,7 +167,7 @@ function OverviewReport() {
                 key={t} onClick={() => setTab(t)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-80 ${
                   tab === t
-                    ? 'bg-indigo-700 dark:bg-indigo-600 text-white'
+                    ? 'bg-blue-700 dark:bg-blue-600 text-white'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                 }`}
               >
@@ -204,7 +205,7 @@ function OverviewReport() {
                   <Td>
                     <button
                       onClick={() => navigate(`/fee-report/${r.roll}`)}
-                      className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+                      className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       {s?.name}
                     </button>
@@ -216,7 +217,7 @@ function OverviewReport() {
                   <Td>
                     <button
                       onClick={() => navigate(`/fee-report/${r.roll}`)}
-                      className="flex items-center gap-1 text-xs text-indigo-500 dark:text-indigo-400 hover:opacity-80"
+                      className="flex items-center gap-1 text-xs text-blue-500 dark:text-blue-400 hover:opacity-80"
                     >
                       <BarChart3 size={13} /> View
                     </button>
@@ -235,7 +236,7 @@ function OverviewReport() {
                 <Td>
                   <button
                     onClick={() => navigate(`/fee-report/${s.roll}`)}
-                    className="font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+                    className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
                   >
                     {s.name}
                   </button>
@@ -248,7 +249,7 @@ function OverviewReport() {
                 <Td>
                   <button
                     onClick={() => navigate(`/fee-report/${s.roll}`)}
-                    className="flex items-center gap-1 text-xs text-indigo-500 dark:text-indigo-400 hover:opacity-80"
+                    className="flex items-center gap-1 text-xs text-blue-500 dark:text-blue-400 hover:opacity-80"
                   >
                     <BarChart3 size={13} /> View
                   </button>
