@@ -52,7 +52,16 @@ export const updateStudent = async (req, res) => {
   res.json(student)
 }
 
-export const deleteStudent = async (req, res) => {
+export const regenerateCodes = async (req, res) => {
+  const students = await Student.find({})
+  let count = 0
+  for (const s of students) {
+    const codes = await generateCodes(s.roll, s.seat)
+    await Student.findByIdAndUpdate(s._id, codes)
+    count++
+  }
+  res.json({ message: `Regenerated codes for ${count} students.` })
+}
   const student = await Student.findByIdAndDelete(req.params.id)
   if (!student) return res.status(404).json({ message: 'Student not found' })
   res.json({ message: 'Student deleted' })
