@@ -3,15 +3,16 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import {
   GraduationCap, UserPlus, CreditCard, BookOpen,
   Settings, Clock, ChevronRight, ChevronLeft,
-  ChevronDown, X, BarChart3, Heart, LibraryBig 
+  ChevronDown, X, BarChart3, Heart, LibraryBig, LayoutDashboard,
 } from 'lucide-react'
 
 const navItems = [
-  { to: '/students',    icon: GraduationCap, label: 'Students'    },
-  { to: '/add-student', icon: UserPlus,      label: 'Add Student' },
-  { to: '/fee',         icon: CreditCard,    label: 'Fee'         },
-  { to: '/fee-report',  icon: BarChart3,     label: 'Fee Report'  },
-  { to: '/books',       icon: BookOpen,      label: 'Books'       },
+  { to: '/dashboard',   icon: LayoutDashboard, label: 'Dashboard'   },
+  { to: '/students',    icon: GraduationCap,   label: 'Students'    },
+  { to: '/add-student', icon: UserPlus,        label: 'Add Student' },
+  { to: '/fee',         icon: CreditCard,      label: 'Fee'         },
+  { to: '/fee-report',  icon: BarChart3,       label: 'Fee Report'  },
+  { to: '/books',       icon: BookOpen,        label: 'Books'       },
 ]
 
 const settingsChildren = [

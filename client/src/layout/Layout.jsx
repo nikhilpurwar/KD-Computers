@@ -11,6 +11,7 @@ import {
 
 const segmentMeta = {
   '':           { label: 'Home',         icon: LayoutDashboard },
+  'dashboard':  { label: 'Dashboard',    icon: LayoutDashboard },
   'students':   { label: 'Students',     icon: GraduationCap   },
   'add-student':{ label: 'Add Student',  icon: UserPlus        },
   'fee':        { label: 'Fee',          icon: CreditCard      },
