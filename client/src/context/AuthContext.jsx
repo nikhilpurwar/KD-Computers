@@ -1,38 +1,57 @@
 import { createContext, useContext, useState } from 'react'
+import api from '../API/index'
 
 const AuthContext = createContext()
 
-const DEMO_USER = { name: 'Ankit', email: 'admin@kdlibrary.com', role: 'Admin' }
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('user')) } catch { return null }
+    try {
+      const u = localStorage.getItem('user') || sessionStorage.getItem('user')
+      return u ? JSON.parse(u) : null
+    } catch { return null }
   })
 
-  const login = ({ email, password, remember }) => {
-    // Demo: accept any non-empty credentials
-    if (!email || !password) return { ok: false, error: 'Enter email and password.' }
-    const u = { ...DEMO_USER, email }
-    if (remember) localStorage.setItem('user', JSON.stringify(u))
-    else          sessionStorage.setItem('user', JSON.stringify(u))
-    setUser(u)
-    return { ok: true }
+  const login = async ({ email, password, remember }) => {
+    try {
+      const { data } = await api.post('/auth/login', { email, password })
+      const store = remember ? localStorage : sessionStorage
+      store.setItem('token', data.token)
+      store.setItem('user', JSON.stringify(data.user))
+      setUser(data.user)
+      return { ok: true }
+    } catch (err) {
+      return { ok: false, error: err.response?.data?.message ?? 'Login failed.' }
+    }
   }
 
   const logout = () => {
+    localStorage.removeItem('token')
     localStorage.removeItem('user')
+    sessionStorage.removeItem('token')
     sessionStorage.removeItem('user')
     setUser(null)
   }
 
-  const changePassword = ({ current, next }) => {
-    if (!current || !next) return { ok: false, error: 'Fill all fields.' }
-    if (next.length < 6)   return { ok: false, error: 'Password must be at least 6 characters.' }
-    return { ok: true }
+  const changePassword = async ({ current, next }) => {
+    try {
+      const { data } = await api.put('/auth/password', { current, next })
+      return { ok: true, message: data.message }
+    } catch (err) {
+      return { ok: false, error: err.response?.data?.message ?? 'Failed to update password.' }
+    }
+  }
+
+  const resetPassword = async ({ email, newPassword }) => {
+    try {
+      const { data } = await api.post('/auth/reset-password', { email, newPassword })
+      return { ok: true, message: data.message }
+    } catch (err) {
+      return { ok: false, error: err.response?.data?.message ?? 'Reset failed.' }
+    }
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, changePassword }}>
+    <AuthContext.Provider value={{ user, login, logout, changePassword, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )

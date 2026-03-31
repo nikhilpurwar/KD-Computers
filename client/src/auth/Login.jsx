@@ -1,21 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, Mail, Lock, LibraryBig , ArrowRight, ArrowLeft, KeyRound, Sun, Moon, CheckCircle } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, LibraryBig, ArrowRight, ArrowLeft, KeyRound, Sun, Moon, CheckCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
-// view: 'login' | 'forgot' | 'sent'
+// view: 'login' | 'forgot' | 'reset' | 'done'
 export default function Login() {
-  const { login } = useAuth()
+  const { login, resetPassword } = useAuth()
   const { dark, toggle } = useTheme()
   const navigate = useNavigate()
 
-  const [view, setView] = useState('login')
-  const [form, setForm] = useState({ email: '', password: '', remember: false })
+  const [view, setView]           = useState('login')
+  const [form, setForm]           = useState({ email: '', password: '', remember: false })
   const [forgotEmail, setForgotEmail] = useState('')
-  const [showPass, setShowPass] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [newPass, setNewPass]     = useState('')
+  const [confirmPass, setConfirmPass] = useState('')
+  const [showPass, setShowPass]   = useState(false)
+  const [showNew, setShowNew]     = useState(false)
+  const [error, setError]         = useState('')
+  const [loading, setLoading]     = useState(false)
 
   const handle = e => {
     const { name, value, type, checked } = e.target
@@ -25,17 +28,51 @@ export default function Login() {
 
   const submitLogin = async e => {
     e.preventDefault()
+    e.stopPropagation()
     setLoading(true)
-    await new Promise(r => setTimeout(r, 600))
-    const res = login(form)
-    setLoading(false)
-    if (res.ok) navigate('/', { replace: true })
-    else setError(res.error)
+    try {
+      const res = await login(form)
+      if (res.ok) navigate('/', { replace: true })
+      else setError(res.error)
+    } catch {
+      setError('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const submitForgot = e => {
+  // Step 1: verify email exists → go to reset form
+  const submitForgot = async e => {
     e.preventDefault()
-    if (forgotEmail) setView('sent')
+    setLoading(true)
+    setError('')
+    try {
+      const res = await resetPassword({ email: forgotEmail, checkOnly: true })
+      if (res.ok) setView('reset')
+      else setError(res.error)
+    } catch {
+      setError('Something went wrong.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Step 2: set new password
+  const submitReset = async e => {
+    e.preventDefault()
+    if (newPass.length < 6) { setError('Password must be at least 6 characters.'); return }
+    if (newPass !== confirmPass) { setError('Passwords do not match.'); return }
+    setLoading(true)
+    setError('')
+    try {
+      const res = await resetPassword({ email: forgotEmail, newPassword: newPass })
+      if (res.ok) setView('done')
+      else setError(res.error)
+    } catch {
+      setError('Something went wrong.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const inputCls = 'w-full py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm outline-none focus:border-blue-400 dark:focus:border-blue-500 transition-colors placeholder-gray-400 dark:placeholder-gray-500'
@@ -117,7 +154,7 @@ export default function Login() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Email</label>
                   <div className="relative">
-                    <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
                     <input name="email" type="email" required value={form.email} onChange={handle}
                       placeholder="admin@kdlibrary.com" className={`${inputCls} pl-9 pr-4`} />
                   </div>
@@ -127,11 +164,11 @@ export default function Login() {
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Password</label>
                   <div className="relative">
-                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
                     <input name="password" type={showPass ? 'text' : 'password'} required value={form.password} onChange={handle}
                       placeholder="••••••••" className={`${inputCls} pl-9 pr-10`} />
                     <button type="button" onClick={() => setShowPass(s => !s)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-600 dark:hover:text-gray-900 transition-colors">
                       {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
@@ -167,7 +204,7 @@ export default function Login() {
                 </button>
               </form>
 
-              <p className="text-center text-xs text-gray-400 dark:text-gray-600">Demo: any email + any password</p>
+
             </div>
           )}
 
@@ -175,7 +212,7 @@ export default function Login() {
           {view === 'forgot' && (
             <div className="space-y-8">
               <div>
-                <button onClick={() => setView('login')}
+                <button onClick={() => { setView('login'); setError('') }}
                   className="flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:opacity-80 font-medium mb-4">
                   <ArrowLeft size={15} /> Back to Sign In
                 </button>
@@ -184,51 +221,89 @@ export default function Login() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Forgot password?</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Enter your registered email and we'll send you a reset link.
+                  Enter your registered admin email to continue.
                 </p>
               </div>
-
               <form onSubmit={submitForgot} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Email</label>
                   <div className="relative">
                     <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="email" required value={forgotEmail} onChange={e => setForgotEmail(e.target.value)}
+                    <input type="email" required value={forgotEmail} onChange={e => { setForgotEmail(e.target.value); setError('') }}
                       placeholder="admin@kdlibrary.com" className={`${inputCls} pl-9 pr-4`} />
                   </div>
                 </div>
-                <button type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm transition-colors">
-                  Send Reset Link <ArrowRight size={16} />
+                {error && (
+                  <p className="text-xs text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">{error}</p>
+                )}
+                <button type="submit" disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 disabled:opacity-60 text-white font-semibold text-sm transition-colors">
+                  {loading ? <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : <> Continue <ArrowRight size={16} /> </>}
                 </button>
               </form>
             </div>
           )}
 
-          {/* ── EMAIL SENT VIEW ── */}
-          {view === 'sent' && (
+          {/* ── RESET PASSWORD VIEW ── */}
+          {view === 'reset' && (
+            <div className="space-y-8">
+              <div>
+                <button onClick={() => { setView('forgot'); setError('') }}
+                  className="flex items-center gap-1.5 text-sm text-blue-600 dark:text-blue-400 hover:opacity-80 font-medium mb-4">
+                  <ArrowLeft size={15} /> Back
+                </button>
+                <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center mb-4">
+                  <KeyRound size={22} className="text-blue-600 dark:text-blue-400" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Set new password</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">For <span className="font-medium text-blue-600 dark:text-blue-400">{forgotEmail}</span></p>
+              </div>
+              <form onSubmit={submitReset} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">New Password</label>
+                  <div className="relative">
+                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type={showNew ? 'text' : 'password'} required value={newPass} onChange={e => { setNewPass(e.target.value); setError('') }}
+                      placeholder="Min. 6 characters" className={`${inputCls} pl-9 pr-10`} />
+                    <button type="button" onClick={() => setShowNew(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                      {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Confirm Password</label>
+                  <div className="relative">
+                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type={showNew ? 'text' : 'password'} required value={confirmPass} onChange={e => { setConfirmPass(e.target.value); setError('') }}
+                      placeholder="Repeat new password" className={`${inputCls} pl-9 pr-4`} />
+                  </div>
+                </div>
+                {error && (
+                  <p className="text-xs text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">{error}</p>
+                )}
+                <button type="submit" disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 disabled:opacity-60 text-white font-semibold text-sm transition-colors">
+                  {loading ? <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> : <> Reset Password <ArrowRight size={16} /> </>}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {/* ── DONE VIEW ── */}
+          {view === 'done' && (
             <div className="space-y-6 text-center">
               <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
                 <CheckCircle size={30} className="text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Check your inbox</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                  We sent a reset link to
-                </p>
-                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mt-0.5">{forgotEmail}</p>
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Password reset!</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">You can now sign in with your new password.</p>
               </div>
               <button
-                onClick={() => { setView('login'); setForgotEmail('') }}
+                onClick={() => { setView('login'); setForgotEmail(''); setNewPass(''); setConfirmPass('') }}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-semibold text-sm transition-colors">
                 <ArrowLeft size={16} /> Back to Sign In
               </button>
-              <p className="text-xs text-gray-400 dark:text-gray-600">
-                Didn't receive it?{' '}
-                <button onClick={() => setView('forgot')} className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
-                  Try again
-                </button>
-              </p>
             </div>
           )}
 

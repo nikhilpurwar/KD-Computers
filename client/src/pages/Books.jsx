@@ -1,50 +1,55 @@
 import { useState } from 'react'
-import { BookOpen, BookCheck, BookX } from 'lucide-react'
+import { BookOpen, BookCheck, BookX, Loader2 } from 'lucide-react'
 import StatCard from '../components/ui/StatCard'
 import Card from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
 import Table, { Tr, Td } from '../components/ui/Table'
 import { SearchInput } from '../components/ui/FormField'
-
-const books = [
-  { id: 1, title: 'The Alchemist',     author: 'Paulo Coelho',       category: 'Fiction',   total: 3, available: 2 },
-  { id: 2, title: 'Wings of Fire',     author: 'A.P.J. Abdul Kalam', category: 'Biography', total: 5, available: 5 },
-  { id: 3, title: 'Rich Dad Poor Dad', author: 'Robert Kiyosaki',    category: 'Finance',   total: 4, available: 1 },
-  { id: 4, title: 'Atomic Habits',     author: 'James Clear',        category: 'Self-Help', total: 6, available: 4 },
-  { id: 5, title: 'Deep Work',         author: 'Cal Newport',        category: 'Self-Help', total: 3, available: 0 },
-  { id: 6, title: 'Sapiens',           author: 'Yuval Noah Harari',  category: 'History',   total: 4, available: 3 },
-]
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll'
 
 const catColor = { Fiction: 'purple', Biography: 'blue', Finance: 'green', 'Self-Help': 'yellow', History: 'orange' }
 
 export default function Books() {
-  const [search, setSearch] = useState('')
-  const filtered = books.filter(b =>
-    b.title.toLowerCase().includes(search.toLowerCase()) ||
-    b.author.toLowerCase().includes(search.toLowerCase())
-  )
+  const [search, setSearch]           = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  const { items: books, total, loading, initial, sentinelRef } = useInfiniteScroll({
+    endpoint: '/books',
+    params:   debouncedSearch ? { search: debouncedSearch } : {},
+  })
+
+  const handleSearch = e => {
+    const v = e.target.value
+    setSearch(v)
+    clearTimeout(window._bookSearchTimer)
+    window._bookSearchTimer = setTimeout(() => setDebouncedSearch(v), 300)
+  }
+
+  const totalCopies    = books.reduce((s, b) => s + b.total, 0)
+  const totalAvailable = books.reduce((s, b) => s + b.available, 0)
+  const totalIssued    = books.reduce((s, b) => s + (b.total - b.available), 0)
 
   return (
-    <div className="space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard icon={BookOpen}  label="Total Books"  value={books.reduce((s, b) => s + b.total, 0)}                 color="accent" />
-        <StatCard icon={BookCheck} label="Available"    value={books.reduce((s, b) => s + b.available, 0)}             color="green" />
-        <StatCard icon={BookX}     label="Issued / Out" value={books.reduce((s, b) => s + (b.total - b.available), 0)} color="orange" />
+    <div className="h-full flex flex-col gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-shrink-0">
+        <StatCard icon={BookOpen}  label="Total Books"  value={total}          color="accent" />
+        <StatCard icon={BookCheck} label="Available"    value={totalAvailable} color="green"  />
+        <StatCard icon={BookX}     label="Issued / Out" value={totalIssued}    color="orange" />
       </div>
 
-      <Card>
+      <Card className="flex-1 min-h-0">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-700">
           <span className="font-semibold text-sm text-gray-800 dark:text-gray-100">Book Inventory</span>
-          <SearchInput value={search} onChange={e => setSearch(e.target.value)} placeholder="Search title or author..." />
+          <SearchInput value={search} onChange={handleSearch} placeholder="Search title or author..." />
         </div>
 
         <Table
           headers={['#', 'Title', 'Author', 'Category', 'Total', 'Available', 'Status']}
-          empty={filtered.length === 0 ? 'No books found.' : null}
+          empty={!initial && !loading && books.length === 0 ? 'No books found.' : null}
         >
-          {filtered.map(b => (
-            <Tr key={b.id}>
-              <Td>{b.id}</Td>
+          {books.map((b, i) => (
+            <Tr key={b._id}>
+              <Td>{i + 1}</Td>
               <Td><span className="font-medium text-gray-800 dark:text-gray-100">{b.title}</span></Td>
               <Td>{b.author}</Td>
               <Td><Badge label={b.category} color={catColor[b.category] ?? 'accent'} /></Td>
@@ -54,6 +59,13 @@ export default function Books() {
             </Tr>
           ))}
         </Table>
+
+        <div ref={sentinelRef} className="h-1" />
+        {loading && (
+          <div className="flex justify-center py-4">
+            <Loader2 size={20} className="animate-spin text-blue-500" />
+          </div>
+        )}
       </Card>
     </div>
   )

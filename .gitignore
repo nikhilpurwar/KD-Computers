@@ -1,1 +1,5 @@
 .history
+server/node_modules
+server/.env
+server/signUp.js
+server/seed.js

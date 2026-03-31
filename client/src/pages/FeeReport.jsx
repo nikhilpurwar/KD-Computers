@@ -38,7 +38,7 @@ function StudentReport({ roll }) {
   const visible = tab === 'Monthly' ? monthly : records
 
   return (
-    <div className="space-y-5">
+    <div className="h-full flex flex-col gap-5 overflow-y-auto">
       {/* Back */}
       <button
         onClick={() => navigate('/fee-report')}
@@ -81,7 +81,7 @@ function StudentReport({ roll }) {
       </div>
 
       {/* Tabs */}
-      <Card>
+      <Card className="flex-1 min-h-0">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-700">
           <div className="flex gap-2">
             {['Monthly', 'All Time'].map(t => (
@@ -150,7 +150,7 @@ function OverviewReport() {
   })
 
   return (
-    <div className="space-y-5">
+    <div className="h-full flex flex-col gap-5 overflow-y-auto">
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard icon={Wallet}       label="Collected" value={`₹${totalCollected}`} color="green"  />
@@ -159,7 +159,7 @@ function OverviewReport() {
       </div>
 
       {/* Tabs + filters */}
-      <Card>
+      <Card className="flex-1 min-h-0">
         <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-700">
           <div className="flex gap-2">
             {['Monthly', 'Yearly', 'All Time'].map(t => (

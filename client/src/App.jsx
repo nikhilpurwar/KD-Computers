@@ -9,6 +9,8 @@ import FeeReport from './pages/FeeReport'
 import Books from './pages/Books'
 import Shift from './pages/Shift'
 
+import StudentProfile from './pages/StudentProfile'
+
 function Protected({ children }) {
   const { user } = useAuth()
   return user ? children : <Navigate to="/login" replace />
@@ -19,6 +21,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/profile/:roll" element={<StudentProfile />} />
         <Route path="/" element={<Protected><Layout /></Protected>}>
           <Route index element={<Navigate to="/students" replace />} />
           <Route path="students"         element={<Students />} />

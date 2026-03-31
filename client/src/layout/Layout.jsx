@@ -58,34 +58,24 @@ function ChangePasswordModal({ onClose }) {
   const [show, setShow]   = useState({ current: false, next: false, confirm: false })
   const [error, setError] = useState('')
   const [done, setDone]   = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handle = e => { setForm(f => ({ ...f, [e.target.name]: e.target.value })); setError('') }
   const toggleShow = k => setShow(s => ({ ...s, [k]: !s[k] }))
 
-  const submit = e => {
+  const submit = async e => {
     e.preventDefault()
     if (form.next !== form.confirm) { setError('New passwords do not match.'); return }
-    const res = changePassword({ current: form.current, next: form.next })
+    setLoading(true)
+    const res = await changePassword({ current: form.current, next: form.next })
+    setLoading(false)
     if (!res.ok) { setError(res.error); return }
     setDone(true)
     setTimeout(onClose, 1800)
   }
 
-  const PasswordField = ({ name, label }) => (
-    <div className="space-y-1.5">
-      <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{label}</label>
-      <div className="relative">
-        <input
-          name={name} type={show[name] ? 'text' : 'password'} required value={form[name]} onChange={handle}
-          placeholder="••••••••"
-          className="w-full pr-10 pl-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm outline-none focus:border-blue-400 transition-colors"
-        />
-        <button type="button" onClick={() => toggleShow(name)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-          {show[name] ? <EyeOff size={15} /> : <Eye size={15} />}
-        </button>
-      </div>
-    </div>
-  )
+  const fieldCls = 'w-full pr-10 pl-3 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 text-sm outline-none focus:border-blue-400 transition-colors'
+  const labelCls = 'text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -110,9 +100,25 @@ function ChangePasswordModal({ onClose }) {
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-4">
-              <PasswordField name="current" label="Current Password" />
-              <PasswordField name="next"    label="New Password" />
-              <PasswordField name="confirm" label="Confirm New Password" />
+              {[['current', 'Current Password'], ['next', 'New Password'], ['confirm', 'Confirm New Password']].map(([name, label]) => (
+                <div key={name} className="space-y-1.5">
+                  <label className={labelCls}>{label}</label>
+                  <div className="relative">
+                    <input
+                      name={name}
+                      type={show[name] ? 'text' : 'password'}
+                      required
+                      value={form[name]}
+                      onChange={handle}
+                      placeholder="••••••••"
+                      className={fieldCls}
+                    />
+                    <button type="button" onClick={() => toggleShow(name)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                      {show[name] ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                </div>
+              ))}
               {error && (
                 <p className="text-xs text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
                   {error}
@@ -122,8 +128,13 @@ function ChangePasswordModal({ onClose }) {
                 <button type="button" onClick={onClose} className="flex-1 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold transition-colors">
-                  Update
+                <button type="submit" disabled={loading} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-blue-700 hover:bg-blue-800 disabled:opacity-60 text-white text-sm font-semibold transition-colors">
+                  {loading ? (
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                  ) : 'Update'}
                 </button>
               </div>
             </form>
@@ -164,9 +175,9 @@ function ProfileDropdown({ user, onChangePw, onLogout }) {
           <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
             <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{user?.name}</p>
             <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{user?.email}</p>
-            <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
+            {/* <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
               {user?.role}
-            </span>
+            </span> */}
           </div>
 
           {/* Actions */}
@@ -203,7 +214,7 @@ export default function Layout() {
   const handleLogout = () => { logout(); navigate('/login', { replace: true }) }
 
   return (
-    <div className="flex w-full min-h-screen bg-white dark:bg-gray-950 transition-colors duration-200">
+    <div className="flex w-full h-screen overflow-hidden bg-white dark:bg-gray-950 transition-colors duration-200">
 
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
@@ -216,8 +227,11 @@ export default function Layout() {
         onToggleCollapse={() => setCollapsed(c => !c)}
       />
 
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${collapsed ? 'lg:ml-16' : 'lg:ml-56'}`}>
-        <header className="sticky top-0 z-10 px-4 md:px-8 md:pt-4 flex items-center justify-between bg-white dark:bg-gray-950">
+      {/* Content column — fills remaining width, locked to viewport height */}
+      <div className={`flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300 ${collapsed ? 'lg:ml-16' : 'lg:ml-56'}`}>
+
+        {/* Sticky header — never scrolls */}
+        <header className="flex-shrink-0 sticky top-0 z-10 px-4 md:px-8 md:pt-4 py-3 flex items-center justify-between bg-white dark:bg-gray-950 transition-100">
           <div className="flex items-center gap-2">
             <button
               className="lg:hidden p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:opacity-80"
@@ -252,15 +266,11 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        {/* Page content — fills remaining height, pages manage their own scroll */}
+        <main className="flex-1 min-h-0 overflow-hidden p-4 sm:px-6 lg:px-8 pb-4">
           <Outlet />
         </main>
 
-        {/* <footer className="px-4 sm:px-8 py-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-center">
-          <p className="text-xs text-gray-400 dark:text-gray-600 flex items-center gap-1">
-            Made with <Heart size={11} className="text-red-400 fill-red-400 mx-0.5" /> by Nikhil
-          </p>
-        </footer> */}
       </div>
 
       {changePwOpen && <ChangePasswordModal onClose={() => setChangePwOpen(false)} />}
