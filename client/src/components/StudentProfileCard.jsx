@@ -25,7 +25,7 @@ export default function StudentProfileCard({ student }) {
 
         <div className="relative flex flex-col items-center text-center gap-2">
           <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-300 to-indigo-400 flex items-center justify-center text-blue-900 font-black text-2xl shadow-lg ring-4 ring-white/20">
-            {student.name[0].toUpperCase()}
+            {student.name?.[0]?.toUpperCase() ?? '?'}
           </div>
           <div>
             <h2 className="text-white font-bold text-lg leading-tight">{student.name}</h2>

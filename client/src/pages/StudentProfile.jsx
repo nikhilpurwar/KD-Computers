@@ -3,13 +3,17 @@ import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import StudentProfileCard from '../components/StudentProfileCard'
 
+const API = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api'
+
 export default function StudentProfile() {
   const { roll } = useParams()
   const [student, setStudent] = useState(null)
   const [error, setError]     = useState('')
 
   useEffect(() => {
-    axios.get(`/api/students/profile/${roll}`)
+    axios.get(`${API}/students/profile/${roll}`)
       .then(r => setStudent(r.data))
       .catch(() => setError('Student not found.'))
   }, [roll])
